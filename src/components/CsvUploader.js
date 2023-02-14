@@ -1,68 +1,106 @@
 import React, { useState } from "react";
 import "./CsvUploader.css";
 import { useModalContext } from "../context/ModalContext";
-import { FaRegEdit } from 'react-icons/fa';
-import { MdDelete } from 'react-icons/md'
+import { FaRegEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 function CsvUploader() {
+  const [headerEdit, setHeaderEdit] = useState(false);
+
   const {
     data,
+    setData,
     headers,
+    setHeaders,
+    editRow,
+    setEditRow,
     showModal,
+    setShowModal,
     modalData,
+    setModalData,
     handleDelete,
     handleDownload,
     handleEdit,
     handleFileUpload,
     handleModalDataChange,
     handleSave,
-    handleCancel,
-    showDownloadBtn
+    showDownloadBtn,
+    handleHeaderEdit,
   } = useModalContext();
+  console.log(">>>>>>>>", headers);
 
   return (
     <div className="csv-upload-container">
-      <h2>Upload and download CSV</h2>
+      <h2>CSV Uploader</h2>
       <div style={{ width: "95%" }}>
-        <label htmlFor="">Upload CSV here</label>  <input style={{ marginBottom: "20px" }} type="file" accept=".csv" onChange={handleFileUpload} />
+        <input
+          style={{ marginBottom: "20px" }}
+          type="file"
+          accept=".csv"
+          onChange={handleFileUpload}
+        />
       </div>
-      <table>
 
-        <thead>
-          <tr>
-            {headers.map((header, index) => (
-              <th key={index}>
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, index) => (
-            <tr key={index}>
-              {headers.map((header) => (
-                <td key={header}>{row[header]}</td>
+      {
+        <table>
+          <thead>
+            <tr>
+              {headers.map((header, index) => (
+                <th key={header}>{header} </th>
               ))}
-              <td style={{ width: "150px" }}>
-                <span onClick={() => handleEdit(index)}><FaRegEdit style={{ scale: "1.5", margin: "10px", cursor: "pointer" }} /></span>
-                <span onClick={() => handleDelete(index)}><MdDelete style={{ scale: "1.5", margin: "10px", cursor: "pointer" }} /></span>
-              </td>
             </tr>
-          ))}
-        </tbody>
+          </thead>
+          <tbody>
+            {data.map((row, index) => (
+              <tr key={index}>
+                {headers.map((header) => (
+                  <td key={header}>{row[header]}</td>
+                ))}
+                <td style={{ width: "150px" }}>
+                  <span onClick={() => handleEdit(index)}>
+                    <FaRegEdit
+                      style={{
+                        scale: "1.5",
+                        margin: "10px",
+                        cursor: "pointer",
+                      }}
+                    />
+                  </span>
+                  <span onClick={() => handleDelete(index)}>
+                    <MdDelete
+                      style={{
+                        scale: "1.5",
+                        margin: "10px",
+                        cursor: "pointer",
+                      }}
+                    />
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          {showDownloadBtn && (
+            <button
+              style={{ marginTop: "20px" }}
+              className="btn"
+              onClick={handleDownload}
+            >
+              Download CSV
+            </button>
+          )}
+        </table>
+      }
 
-      </table>
-      <div style={{ width: "90%" }}>
-        {
-
-          showDownloadBtn &&
-          <button style={{ marginTop: "20px" }} className="btn" onClick={handleDownload}>Download CSV</button>
-        }
-      </div>
       {showModal && (
         <div className="edit_modal">
           {headers.map((header) => (
-            <div style={{ display: "flex", justifyContent: "space-between", margin: "10px" }} key={header}>
-
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                margin: "10px",
+              }}
+              key={header}
+            >
               <label htmlFor={header}>{header}:</label>
 
               <input
@@ -71,23 +109,20 @@ function CsvUploader() {
                 id={header}
                 value={modalData[header]}
                 onChange={handleModalDataChange}
-                style={{ marginLeft: "5px", outline: "none", width: "200px", height: "20px" }}
+                style={{
+                  marginLeft: "5px",
+                  outline: "none",
+                  width: "200px",
+                  height: "20px",
+                }}
               />
-
             </div>
           ))}
-
-          <div style={{ display: "flex", justifyContent: "space-around" }}>
-            <button className="btn" style={{ height: "30px" }} onClick={handleSave}>Save</button>
-            <button className="btn" style={{ height: "30px" }} onClick={handleCancel}>Cancel</button>
-
-          </div>
-
+          <button className="btn" onClick={handleSave}>
+            Save
+          </button>
         </div>
-
       )}
-      <div>
-      </div>
     </div>
   );
 }

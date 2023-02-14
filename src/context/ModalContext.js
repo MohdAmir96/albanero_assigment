@@ -8,29 +8,20 @@ function ModalProvider({ children }) {
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState({});
   const [showDownloadBtn, setShownLoadBtn] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const handleFileUpload = (e) => {
+    setLoading(true);
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const csv = event.target.result;
-      const lines = csv.split(/\r\n|\n/);
-      let headers = lines[0].split(",");
-      headers = headers[0].split(";");
-      const data = lines.slice(1).map((line) => {
-        const values = line.split(";");
-        return headers.reduce((obj, header, i) => {
-          obj[header] = values[i];
-          return obj;
-        }, {});
-      });
-
-      setData(data);
-      setHeaders(headers);
-      console.log(data);
-    };
-    reader.readAsText(file);
+    Papa.parse(file, {
+      header: true,
+      complete: (results) => {
+        console.log(results.data);
+        setData(results.data);
+        setHeaders(Object.keys(results.data[0]));
+      },
+    });
     setShownLoadBtn(true);
+    setLoading(false);
   };
 
   const handleDownload = () => {
@@ -55,6 +46,11 @@ function ModalProvider({ children }) {
     setModalData(data[index]);
     setShowModal(true);
   };
+  const handleHeaderEdit = (index) => {
+    setEditRow(index);
+    setModalData(headers[index]);
+    setShowModal(true);
+  };
 
   const handleSave = () => {
     setData(
@@ -67,15 +63,22 @@ function ModalProvider({ children }) {
     );
     setShowModal(false);
   };
-  const handleCancel = () => {
-    setShowModal(false);
-  };
+
   const handleModalDataChange = (e) => {
+    console.log(e.target);
     setModalData({
       ...modalData,
       [e.target.name]: e.target.value,
     });
   };
+  const handleHeaderModalDataChange = (e) => {
+    console.log(e.target);
+    setModalData({
+      ...modalData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <ModalContext.Provider
       value={{
@@ -96,7 +99,8 @@ function ModalProvider({ children }) {
         handleModalDataChange,
         handleSave,
         showDownloadBtn,
-        handleCancel,
+        handleHeaderEdit,
+        loading,
       }}
     >
       {children}
